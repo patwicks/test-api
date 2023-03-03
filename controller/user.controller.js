@@ -165,3 +165,17 @@ exports.UPDATE_USER = async (req, res) => {
       .json({ errorMessage: "Something went wrong while updating username!" });
   }
 };
+
+exports.LOGOUT_USER = async (req, res) => {
+  try {
+    res.cookie("token", "", {
+      httpOnly: true,
+      maxAge: 1,
+      secure: true,
+      sameSite: "none",
+    });
+    res.json({ successMessage: "You have been logout!" });
+  } catch (error) {
+    console.log(error.message);
+  }
+};
