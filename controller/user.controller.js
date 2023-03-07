@@ -90,14 +90,13 @@ exports.LOGIN_USER = async (req, res) => {
           httpOnly: true,
           maxAge: expiration * 1000,
           secure: true,
-          sameSite: "none",
+          sameSite: "Lax",
         });
 
         res.status(200).json({ successMessage: "Successfully login", user });
       }
     }
   } catch (error) {
-    console.log(error);
     return res.status(400).json({
       errorMessage: "Something went wrong while logging in, try again!",
     });
@@ -108,15 +107,16 @@ exports.AUTO_LOGIN = async (req, res) => {
   //this functions is not returning any error
   try {
     const token = req.cookies.token;
+    console.log(req);
     if (!token) {
-      return res.status(200).json({ isLogin: false, user: null });
+      return res.status(400).json({ isLogin: false, user: null });
     } else {
       const { id } = jwt.verify(token, process.env.TOKEN_SECRET);
       const user = await User.findById(id);
       return res.status(200).json({ isLogin: true, user });
     }
   } catch (error) {
-    return res.status(200).json({ isLogin: false, user: null });
+    return res.status(400).json({ isLogin: false, user: null });
   }
 };
 
