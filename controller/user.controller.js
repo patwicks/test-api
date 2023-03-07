@@ -29,11 +29,9 @@ exports.REGISTER_USER = async (req, res) => {
     const newPass = await bcrypt.hash(password, salt);
 
     if (error) {
-      return res.status(400).json({ errorMessage: error.details[0].message });
+      return res.status(400).json({ error: error.details[0].message });
     } else if (user) {
-      return res
-        .status(400)
-        .json({ errorMessage: "Email is already existing!" });
+      return res.status(400).json({ error: "Email is already existing!" });
     } else {
       //create new user
       const newUser = new User({
@@ -42,7 +40,7 @@ exports.REGISTER_USER = async (req, res) => {
         password: newPass,
         roles,
         profile:
-          "https://res.cloudinary.com/dxcbmlxoe/image/upload/v1678166316/avatar_oyv2pt.png",
+          "https://res.cloudinary.com/dxcbmlxoe/image/upload/v1678174982/211-2116009_hacking-vector-png_wbycme.png",
       });
       //save user
       const saveNewUser = await newUser.save();
@@ -50,14 +48,14 @@ exports.REGISTER_USER = async (req, res) => {
       if (saveNewUser) {
         return res
           .status(200)
-          .json({ successMessage: "Successfully registered, login now!" });
+          .json({ success: "Successfully registered, login now!" });
       } else {
-        return res.status(400).json({ errorMessage: "Failed to register!" });
+        return res.status(400).json({ error: "Failed to register!" });
       }
     }
   } catch (error) {
     return res.status(500).json({
-      errorMessage: "Something went wrong on registering, try again!",
+      error: "Something went wrong on registering, try again!",
     });
   }
 };
@@ -72,18 +70,14 @@ exports.LOGIN_USER = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (error) {
-      return res.status(400).json({ errorMessage: error.details[0].message });
+      return res.status(400).json({ error: error.details[0].message });
     } else if (!user) {
-      return res
-        .status(400)
-        .json({ errorMessage: "Invalid email or password!" });
+      return res.status(400).json({ error: "Invalid email or password!" });
     } else {
       //check if password is valid
       const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) {
-        return res
-          .status(400)
-          .json({ errorMessage: "Invalid email or password!" });
+        return res.status(400).json({ error: "Invalid email or password!" });
       } else {
         //assign a token and save it to browser cookies
         const token = createToken(user._id, process.env.TOKEN_SECRET);
@@ -96,19 +90,18 @@ exports.LOGIN_USER = async (req, res) => {
         });
 
         res.status(200).json({
-          successMessage: "Successfully login",
-          user: {
-            fullname: user.fullname,
-            email: user.email,
-            roles: user.roles,
-            profile: user.profile,
-          },
+          success: "Successfully login",
+          isLogin: true,
+          fullname: user.fullname,
+          email: user.email,
+          roles: user.roles,
+          profile: user.profile,
         });
       }
     }
   } catch (error) {
     return res.status(400).json({
-      errorMessage: "Something went wrong while logging in, try again!",
+      error: "Something went wrong while logging in, try again!",
     });
   }
 };
@@ -123,13 +116,12 @@ exports.AUTO_LOGIN = async (req, res) => {
       const { id } = jwt.verify(token, process.env.TOKEN_SECRET);
       const user = await User.findById(id);
       return res.status(200).json({
+        success: "Successfully login",
         isLogin: true,
-        user: {
-          fullname: user.fullname,
-          email: user.email,
-          roles: user.roles,
-          profile: user.profile,
-        },
+        fullname: user.fullname,
+        email: user.email,
+        roles: user.roles,
+        profile: user.profile,
       });
     }
   } catch (error) {
@@ -147,16 +139,14 @@ exports.UPDATE_USER = async (req, res) => {
     const paramsId = new mongoose.Types.ObjectId(req.params.id);
 
     if (error) {
-      return res.status(400).json({ errorMessage: error.details[0].message });
+      return res.status(400).json({ error: error.details[0].message });
     } else {
       //check email
       const emailExist = await User.findOne({ email });
       if (email === user.email && user._id.toString() !== paramsId.toString()) {
-        return res.status(400).json({ errorMessage: "Choose another email!" });
+        return res.status(400).json({ error: "Choose another email!" });
       } else if (emailExist && user._id.toString() !== paramsId.toString()) {
-        return res
-          .status(400)
-          .json({ errorMessage: "Email is already exist!" });
+        return res.status(400).json({ error: "Email is already exist!" });
       } else {
         //change the Email
         const updateUser = await User.findByIdAndUpdate(req.params.id, {
@@ -167,11 +157,11 @@ exports.UPDATE_USER = async (req, res) => {
         if (updateUser) {
           return res
             .status(200)
-            .json({ successMessage: "User details successfully updated!" });
+            .json({ success: "User details successfully updated!" });
         } else {
           return res
             .status(400)
-            .json({ errorMessage: "Failed to update user details!" });
+            .json({ error: "Failed to update user details!" });
         }
       }
     }
@@ -179,7 +169,7 @@ exports.UPDATE_USER = async (req, res) => {
     console.log(error);
     return res
       .status(400)
-      .json({ errorMessage: "Something went wrong while updating username!" });
+      .json({ error: "Something went wrong while updating username!" });
   }
 };
 
@@ -191,7 +181,7 @@ exports.LOGOUT_USER = async (req, res) => {
       secure: true,
       sameSite: "none",
     });
-    res.json({ successMessage: "You have been logout!" });
+    res.json({ success: "You have been logout!" });
   } catch (error) {
     res.json(error);
   }
