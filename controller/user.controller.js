@@ -128,6 +128,7 @@ exports.AUTO_LOGIN = async (req, res) => {
           fullname: user.fullname,
           email: user.email,
           roles: user.roles,
+          profile: user.profile,
         },
       });
     }
