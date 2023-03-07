@@ -20,10 +20,15 @@ const userSchema = new mongoose.Schema(
     roles: {
       type: [String],
     },
+    profile: {
+      type: String,
+      unique: true,
+      required: true,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("User", userSchema)
+module.exports = mongoose.model("User", userSchema);

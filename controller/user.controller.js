@@ -41,6 +41,8 @@ exports.REGISTER_USER = async (req, res) => {
         email,
         password: newPass,
         roles,
+        profile:
+          "https://res.cloudinary.com/dxcbmlxoe/image/upload/v1678166316/avatar_oyv2pt.png",
       });
       //save user
       const saveNewUser = await newUser.save();
@@ -93,7 +95,15 @@ exports.LOGIN_USER = async (req, res) => {
           sameSite: "Lax",
         });
 
-        res.status(200).json({ successMessage: "Successfully login", user });
+        res.status(200).json({
+          successMessage: "Successfully login",
+          user: {
+            fullname: user.fullname,
+            email: user.email,
+            roles: user.roles,
+            profile: user.profile,
+          },
+        });
       }
     }
   } catch (error) {
@@ -107,13 +117,19 @@ exports.AUTO_LOGIN = async (req, res) => {
   //this functions is not returning any error
   try {
     const token = req.cookies.token;
-    console.log(req);
     if (!token) {
       return res.status(400).json({ isLogin: false, user: null });
     } else {
       const { id } = jwt.verify(token, process.env.TOKEN_SECRET);
       const user = await User.findById(id);
-      return res.status(200).json({ isLogin: true, user });
+      return res.status(200).json({
+        isLogin: true,
+        user: {
+          fullname: user.fullname,
+          email: user.email,
+          roles: user.roles,
+        },
+      });
     }
   } catch (error) {
     return res.status(400).json({ isLogin: false, user: null });
@@ -176,6 +192,6 @@ exports.LOGOUT_USER = async (req, res) => {
     });
     res.json({ successMessage: "You have been logout!" });
   } catch (error) {
-    console.log(error.message);
+    res.json(error);
   }
 };
